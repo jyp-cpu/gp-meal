@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>영양선생님과의 달콤한 급식 추억 🍃</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,9 +14,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
-    /* =========================================================
-       파이어베이스 설정값 (gp-meal)
-    ========================================================= */
     const firebaseConfig = {
       apiKey: "AIzaSyBvb26ntLAmFu3NOfuLo-xAjPcbn1GjLm0",
       authDomain: "gp-meal.firebaseapp.com",
@@ -27,7 +24,6 @@
       measurementId: "G-0S99P6GN5P"
     };
 
-    // 파이어베이스 초기화
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
   </script>
@@ -47,6 +43,7 @@
       box-sizing: border-box;
       font-family: 'Nanum Round', 'Jua', sans-serif;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -63,26 +60,29 @@
 
     .header-bar {
       position: fixed;
-      top: 14px;
+      top: 12px;
       z-index: 50;
-      background: rgba(255, 255, 255, 0.94);
-      padding: 10px 24px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 8px 18px;
       border-radius: 30px;
       box-shadow: 0 4px 18px rgba(0,0,0,0.18);
-      font-size: 1.08rem;
+      font-size: 1rem;
       color: #3e2723;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
       border: 3px solid #795548;
+      max-width: 92%;
     }
 
     .header-date-badge {
       background: #5ca353;
       color: white;
-      padding: 4px 14px;
+      padding: 4px 12px;
       border-radius: 16px;
       font-weight: bold;
+      font-size: 0.95rem;
+      white-space: nowrap;
     }
 
     .open-cal-btn {
@@ -90,9 +90,11 @@
       background: var(--ac-orange);
       color: #fff;
       border-radius: 14px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 0.9rem;
+      white-space: nowrap;
       transition: transform 0.15s;
     }
     .open-cal-btn:hover {
@@ -101,15 +103,15 @@
 
     .main-stage {
       position: relative;
-      width: 95%;
+      width: 96%;
       max-width: 1280px;
       aspect-ratio: 16 / 9;
       background-color: #2b4028;
-      border-radius: 24px;
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-      border: 8px solid #a1887f;
-      margin: 60px 0 20px 0;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.35);
+      border: 6px solid #a1887f;
+      margin: 64px 0 16px 0;
     }
 
     .scene-bg {
@@ -119,19 +121,19 @@
       display: block;
     }
 
-    /* 2. 상시 미세 발광(글로우) 애니메이션 */
-    @keyframes ac-glow {
+    /* 상시 뚜렷하게 빛나는 황금빛 펄스 애니메이션 */
+    @keyframes ac-glow-pulse {
       0% {
-        box-shadow: 0 0 8px 2px rgba(255, 235, 59, 0.45);
-        border: 2px dashed rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.6), inset 0 0 6px rgba(255, 255, 255, 0.4);
+        border: 2.5px dashed #ffd700;
       }
       50% {
-        box-shadow: 0 0 18px 5px rgba(255, 215, 64, 0.85);
-        border: 2px dashed rgba(255, 238, 88, 0.95);
+        box-shadow: 0 0 18px 6px rgba(255, 171, 0, 0.95), inset 0 0 10px rgba(255, 255, 255, 0.7);
+        border: 2.5px dashed #ffffff;
       }
       100% {
-        box-shadow: 0 0 8px 2px rgba(255, 235, 59, 0.45);
-        border: 2px dashed rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.6), inset 0 0 6px rgba(255, 255, 255, 0.4);
+        border: 2.5px dashed #ffd700;
       }
     }
 
@@ -139,16 +141,15 @@
       position: absolute;
       cursor: pointer;
       border-radius: 14px;
-      transition: all 0.2s ease;
+      transition: transform 0.2s ease;
       z-index: 10;
-      animation: ac-glow 2.4s infinite ease-in-out;
+      animation: ac-glow-pulse 2s infinite ease-in-out;
     }
 
     .hotspot:hover {
-      animation: none;
-      box-shadow: 0 0 24px 6px rgba(255, 214, 0, 1) !important;
-      border: 2px solid #ffffff !important;
-      transform: scale(1.03);
+      box-shadow: 0 0 26px 8px rgba(255, 238, 88, 1) !important;
+      border: 2.5px solid #ffffff !important;
+      transform: scale(1.04);
     }
 
     .hotspot-box { left: 20%; top: 70%; width: 22%; height: 28%; }
@@ -169,19 +170,20 @@
     .hotspot::after {
       content: attr(data-tooltip);
       position: absolute;
-      bottom: -32px;
+      bottom: -30px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(33, 33, 33, 0.88);
+      background: rgba(33, 33, 33, 0.92);
       color: #fff;
-      padding: 4px 10px;
-      border-radius: 10px;
-      font-size: 0.85rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
       white-space: nowrap;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s;
       z-index: 30;
+      border: 1px solid rgba(255,255,255,0.3);
     }
     .hotspot:hover::after { opacity: 1; }
 
@@ -197,18 +199,21 @@
       justify-content: center;
       z-index: 100;
       backdrop-filter: blur(4px);
+      padding: 12px;
     }
 
     .ac-dialog {
       background: var(--ac-paper);
-      border: 8px solid var(--ac-wood);
-      border-radius: 28px;
-      padding: 26px 32px;
-      max-width: 580px;
-      width: 90%;
+      border: 6px solid var(--ac-wood);
+      border-radius: 24px;
+      padding: 22px 24px;
+      max-width: 560px;
+      width: 95%;
       box-shadow: 0 18px 36px rgba(0,0,0,0.35);
       position: relative;
       animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     @keyframes popIn {
@@ -218,36 +223,40 @@
 
     .modal-close-btn {
       position: absolute;
-      top: -18px;
-      right: -18px;
+      top: -14px;
+      right: -14px;
       background: #e57373;
       color: white;
       border: 3px solid #fff;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.3rem;
+      width: 36px;
+      height: 36px;
+      font-size: 1.2rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
 
     .ac-dialog h2 {
       margin-top: 0;
       color: var(--ac-wood-dark);
       text-align: center;
-      font-size: 1.65rem;
+      font-size: 1.45rem;
       border-bottom: 2px dashed #bcaaa4;
-      padding-bottom: 12px;
+      padding-bottom: 10px;
     }
 
-    .input-group { margin-bottom: 14px; }
-    .input-group label { display: block; margin-bottom: 6px; color: #4e342e; font-weight: bold; }
+    .input-group { margin-bottom: 12px; }
+    .input-group label { display: block; margin-bottom: 5px; color: #4e342e; font-weight: bold; font-size: 0.95rem; }
     .ac-input, .ac-select, .ac-textarea {
       width: 100%;
-      padding: 10px 14px;
-      border-radius: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
       border: 2px solid #bcaaa4;
       background: #fff;
-      font-size: 1rem;
+      font-size: 0.95rem;
       outline: none;
     }
 
@@ -255,9 +264,9 @@
       background: var(--ac-green);
       color: white;
       border: none;
-      padding: 12px 20px;
-      border-radius: 20px;
-      font-size: 1.1rem;
+      padding: 11px 18px;
+      border-radius: 18px;
+      font-size: 1.05rem;
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 4px #33691e;
@@ -266,52 +275,55 @@
     .ac-btn:active { transform: translateY(3px); box-shadow: 0 1px #33691e; }
 
     .menu-title-pop {
-      font-size: 2.2rem;
+      font-size: 1.85rem;
       color: #e65100;
-      margin: 15px 0;
+      margin: 12px 0;
+      word-break: keep-all;
       animation: bounce 0.6s infinite alternate;
     }
-    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-7px); } }
 
+    /* 2. 전광판 속도 개선: 14s -> 6s */
     .ticker-wrapper {
       width: 100%;
       background: #212121;
       color: #ffe082;
       border-radius: 14px;
-      padding: 12px;
+      padding: 10px 12px;
       overflow: hidden;
       box-shadow: inset 0 0 10px #000;
       border: 3px solid #ffb300;
-      font-size: 1.25rem;
-      margin-top: 15px;
+      font-size: 1.2rem;
+      margin-top: 14px;
     }
 
     .ticker-content {
       display: inline-block;
       white-space: nowrap;
-      animation: marquee 14s linear infinite;
+      animation: marquee 6s linear infinite;
     }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-      margin-top: 14px;
+      gap: 5px;
+      margin-top: 12px;
     }
 
-    .cal-day-header { text-align: center; font-weight: bold; color: #8d5b4c; padding-bottom: 4px; }
+    .cal-day-header { text-align: center; font-weight: bold; color: #8d5b4c; padding-bottom: 4px; font-size: 0.9rem; }
     .cal-day-cell {
-      height: 46px;
+      height: 42px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       background: #f1f8e9;
-      border-radius: 12px;
+      border-radius: 10px;
       cursor: not-allowed;
       opacity: 0.4;
       font-weight: bold;
+      font-size: 0.9rem;
       position: relative;
     }
     .cal-day-cell.active-data {
@@ -323,31 +335,97 @@
     .cal-day-cell.selected { background: #81c784 !important; color: white; border-color: #2e7d32; }
 
     .recipe-board {
-      margin-top: 15px;
+      margin-top: 14px;
       background: #fff9c4;
       border: 2px dashed #bcaaa4;
-      border-radius: 16px;
-      padding: 14px;
-      max-height: 180px;
+      border-radius: 14px;
+      padding: 12px;
+      max-height: 160px;
       overflow-y: auto;
     }
 
     .menu-item-tag {
       display: inline-block;
       background: white;
-      padding: 5px 12px;
-      border-radius: 14px;
-      margin: 4px;
-      font-size: 0.95rem;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin: 3px;
+      font-size: 0.88rem;
       color: #3e2723;
       border: 1px solid #d7ccc8;
+    }
+
+    /* 1. 모바일 전용 반응형 레이아웃 스타일 */
+    @media (max-width: 768px) {
+      .header-bar {
+        top: 8px;
+        padding: 6px 14px;
+        font-size: 0.88rem;
+        gap: 8px;
+        border-width: 2.5px;
+      }
+      .header-date-badge {
+        padding: 3px 10px;
+        font-size: 0.85rem;
+      }
+      .open-cal-btn {
+        padding: 5px 10px;
+        font-size: 0.82rem;
+      }
+      .main-stage {
+        width: 98%;
+        aspect-ratio: 16 / 9;
+        margin: 54px 0 10px 0;
+        border-width: 4px;
+        border-radius: 16px;
+      }
+      .hotspot::after {
+        display: none; /* 모바일 터치 환경에서 툴팁 잘림 방지 */
+      }
+      .ac-dialog {
+        padding: 18px 16px;
+        border-width: 5px;
+        border-radius: 20px;
+        width: 96%;
+      }
+      .ac-dialog h2 {
+        font-size: 1.25rem;
+        padding-bottom: 8px;
+      }
+      .modal-close-btn {
+        top: -10px;
+        right: -10px;
+        width: 32px;
+        height: 32px;
+        font-size: 1.1rem;
+      }
+      .menu-title-pop {
+        font-size: 1.55rem;
+      }
+      .ticker-wrapper {
+        font-size: 1.05rem;
+        padding: 8px 10px;
+      }
+      .cal-day-cell {
+        height: 38px;
+        font-size: 0.82rem;
+        border-radius: 8px;
+      }
+      .recipe-board {
+        max-height: 140px;
+        padding: 10px;
+      }
+      .menu-item-tag {
+        font-size: 0.8rem;
+        padding: 3px 8px;
+      }
     }
   </style>
 </head>
 <body>
 
   <div class="header-bar">
-    <span>🍱 선택된 급식 날짜:</span>
+    <span>🍱 선택된 날짜:</span>
     <span class="header-date-badge" id="currentViewDateText">조회 중...</span>
     <button class="open-cal-btn" onclick="openCalendarModal()">달력 열기 📅</button>
   </div>
@@ -363,9 +441,9 @@
     <div class="hotspot hotspot-calendar" onclick="openCalendarModal()" data-tooltip="🗓️ 추억 달력 & 식단표"></div>
   </div>
 
-  <!-- 1. 업로드 모달 (바깥 클릭 꺼짐 방지 적용) -->
+  <!-- 1. 업로드 모달 (바깥 클릭 방지 처리) -->
   <div id="uploadModal" class="modal-overlay">
-    <div class="ac-dialog">
+    <div class="ac-dialog" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeModal('uploadModal')">×</button>
       <h2>📦 관리자 추억 배달함</h2>
       <div id="pwSection">
@@ -399,45 +477,45 @@
   </div>
 
   <!-- 2. 식판 사진 확대 뷰어 모달 -->
-  <div id="trayViewerModal" class="modal-overlay">
-    <div class="ac-dialog" style="max-width: 680px; text-align: center;">
+  <div id="trayViewerModal" class="modal-overlay" onclick="closeModal('trayViewerModal')">
+    <div class="ac-dialog" style="max-width: 680px; text-align: center;" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeModal('trayViewerModal')">×</button>
       <h2 id="trayModalTitle">🍱 오늘의 식판 원본</h2>
-      <div style="margin: 15px 0;">
-        <img id="trayFullImg" src="" alt="식판 사진" style="max-width: 100%; max-height: 480px; border-radius: 16px; border: 4px solid var(--ac-wood);" />
+      <div style="margin: 12px 0;">
+        <img id="trayFullImg" src="" alt="식판 사진" style="max-width: 100%; max-height: 440px; border-radius: 16px; border: 4px solid var(--ac-wood);" />
       </div>
-      <p id="trayModalDesc" style="color:#5d4037; font-size:1.1rem;"></p>
+      <p id="trayModalDesc" style="color:#5d4037; font-size:1.05rem;"></p>
     </div>
   </div>
 
-  <!-- 3. 선물상자 모달 -->
-  <div id="giftModal" class="modal-overlay">
-    <div class="ac-dialog">
+  <!-- 3. 선물상자 결과 모달 -->
+  <div id="giftModal" class="modal-overlay" onclick="closeModal('giftModal')">
+    <div class="ac-dialog" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeModal('giftModal')">×</button>
       <h2>🎁 오늘의 영예로운 최고 메뉴</h2>
-      <div style="text-align:center; padding:15px 0;">
-        <div style="font-size: 3rem;">🎉👑🎉</div>
+      <div style="text-align:center; padding:12px 0;">
+        <div style="font-size: 2.8rem;">🎉👑🎉</div>
         <div class="menu-title-pop" id="giftBestMenuTitle">로딩 중...</div>
-        <div style="color: #6d4c41; margin-bottom: 15px; font-weight: bold;">영양선생님이 사랑으로 준비해주신 1위 급식!</div>
+        <div style="color: #6d4c41; margin-bottom: 12px; font-weight: bold; font-size: 0.95rem;">영양선생님이 사랑으로 준비해주신 1위 급식!</div>
         <div class="ticker-wrapper">
-          <div class="ticker-content" id="giftTickerComment">선생님 사랑합니다! ❤️</div>
+          <div class="ticker-content" id="giftTickerComment">선생님 감사합니다! ❤️</div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 4. 달력 모달 -->
-  <div id="calendarModal" class="modal-overlay">
-    <div class="ac-dialog" style="max-width: 620px;">
+  <div id="calendarModal" class="modal-overlay" onclick="closeModal('calendarModal')">
+    <div class="ac-dialog" style="max-width: 600px;" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeModal('calendarModal')">×</button>
       <h2>🗓️ 추억 달력 & 걸포초 식단표</h2>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <button onclick="changeCalMonth(-1)" class="ac-btn" style="width:auto; padding:6px 16px;">◀ 이전달</button>
-        <span id="calMonthTitle" style="font-size:1.25rem; font-weight:bold; color:var(--ac-wood-dark);">2026년 06월</span>
-        <button onclick="changeCalMonth(1)" class="ac-btn" style="width:auto; padding:6px 16px;">다음달 ▶</button>
+        <button onclick="changeCalMonth(-1)" class="ac-btn" style="width:auto; padding:6px 14px; font-size:0.9rem;">◀ 이전달</button>
+        <span id="calMonthTitle" style="font-size:1.15rem; font-weight:bold; color:var(--ac-wood-dark);">2026년 06월</span>
+        <button onclick="changeCalMonth(1)" class="ac-btn" style="width:auto; padding:6px 14px; font-size:0.9rem;">다음달 ▶</button>
       </div>
       <div class="calendar-grid" id="calGrid"></div>
-      <h3 style="margin-top:20px; margin-bottom:6px; color:var(--ac-wood-dark);">📋 걸포초등학교 급식 식단표</h3>
+      <h3 style="margin-top:16px; margin-bottom:6px; color:var(--ac-wood-dark); font-size:1.1rem;">📋 걸포초등학교 급식 식단표</h3>
       <div class="recipe-board" id="dailyMenuList">날짜를 클릭하면 그날의 식단표가 펼쳐집니다! 🍃</div>
     </div>
   </div>
@@ -453,7 +531,6 @@
     let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth() + 1;
 
-    // Firestore 실시간 리스너 연동
     window.addEventListener("DOMContentLoaded", () => {
       initSchoolCode();
       db.collection("lunchMemories").onSnapshot((snapshot) => {
@@ -604,7 +681,6 @@
       openModal("trayViewerModal");
     }
 
-    /* 3. 선물상자 한줄평 전광판 - 수식어 없이 순수 한줄평만 표시 */
     function handleGiftClick() {
       const current = memoryData[selectedDate] || {
         bestMenu: "사랑이 담긴 특식",
@@ -697,15 +773,6 @@
 
     function openModal(id) { document.getElementById(id).style.display = "flex"; }
     function closeModal(id) { document.getElementById(id).style.display = "none"; }
-
-    /* 1. 업로드 모달(uploadModal)은 배경 클릭 닫기 방지 (다른 단순 조회 모달만 배경 클릭 허용) */
-    window.onclick = (e) => {
-      if (e.target.classList.contains("modal-overlay")) {
-        if (e.target.id !== "uploadModal") {
-          e.target.style.display = "none";
-        }
-      }
-    };
   </script>
 </body>
 </html>
