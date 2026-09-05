@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>영양선생님과의 달콤한 급식 추억 🍃</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nanum+Round&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- 파이어베이스 SDK (v9 호환 스크립트) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    /* =========================================================
+       파이어베이스 설정값 (gp-meal)
+    ========================================================= */
+    const firebaseConfig = {
+      apiKey: "AIzaSyBvb26ntLAmFu3NOfuLo-xAjPcbn1GjLm0",
+      authDomain: "gp-meal.firebaseapp.com",
+      projectId: "gp-meal",
+      storageBucket: "gp-meal.firebasestorage.app",
+      messagingSenderId: "489685408474",
+      appId: "1:489685408474:web:b6f13db4c0206c29eb23e3",
+      measurementId: "G-0S99P6GN5P"
+    };
+
+    // 파이어베이스 초기화
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <style>
+    :root {
+      --ac-bg: #e8f5e9;
+      --ac-wood: #8d5b4c;
+      --ac-wood-dark: #5c3a21;
+      --ac-paper: #fffdf2;
+      --ac-green: #5ca353;
+      --ac-yellow: #fdd835;
+      --ac-orange: #ff9800;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Nanum Round', 'Jua', sans-serif;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #7bbce8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header-bar {
+      position: fixed;
+      top: 14px;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.94);
+      padding: 10px 24px;
+      border-radius: 30px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+      font-size: 1.08rem;
+      color: #3e2723;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 3px solid #795548;
+    }
+
+    .header-date-badge {
+      background: #5ca353;
+      color: white;
+      padding: 4px 14px;
+      border-radius: 16px;
+      font-weight: bold;
+    }
+
+    .open-cal-btn {
+      border: none;
+      background: var(--ac-orange);
+      color: #fff;
+      border-radius: 14px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.15s;
+    }
+    .open-cal-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .main-stage {
+      position: relative;
+      width: 95%;
+      max-width: 1280px;
+      aspect-ratio: 16 / 9;
+      background-color: #2b4028;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      border: 8px solid #a1887f;
+      margin: 60px 0 20px 0;
+    }
+
+    .scene-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* 2. 상시 미세 발광(글로우) 애니메이션 */
+    @keyframes ac-glow {
+      0% {
+        box-shadow: 0 0 8px 2px rgba(255, 235, 59, 0.45);
+        border: 2px dashed rgba(255, 255, 255, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 18px 5px rgba(255, 215, 64, 0.85);
+        border: 2px dashed rgba(255, 238, 88, 0.95);
+      }
+      100% {
+        box-shadow: 0 0 8px 2px rgba(255, 235, 59, 0.45);
+        border: 2px dashed rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    .hotspot {
+      position: absolute;
+      cursor: pointer;
+      border-radius: 14px;
+      transition: all 0.2s ease;
+      z-index: 10;
+      animation: ac-glow 2.4s infinite ease-in-out;
+    }
+
+    .hotspot:hover {
+      animation: none;
+      box-shadow: 0 0 24px 6px rgba(255, 214, 0, 1) !important;
+      border: 2px solid #ffffff !important;
+      transform: scale(1.03);
+    }
+
+    .hotspot-box { left: 20%; top: 70%; width: 22%; height: 28%; }
+    .hotspot-tray { left: 43.5%; top: 63.8%; width: 8.8%; height: 8.5%; display: flex; align-items: center; justify-content: center; }
+    .hotspot-gift { left: 49.5%; top: 62.5%; width: 13.5%; height: 12%; }
+    .hotspot-calendar { left: 50.2%; top: 55%; width: 5.5%; height: 9%; }
+
+    .tray-img-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+      display: none;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      border: 2px solid #ffffff;
+    }
+
+    .hotspot::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(33, 33, 33, 0.88);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 30;
+    }
+    .hotspot:hover::after { opacity: 1; }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+
+    .ac-dialog {
+      background: var(--ac-paper);
+      border: 8px solid var(--ac-wood);
+      border-radius: 28px;
+      padding: 26px 32px;
+      max-width: 580px;
+      width: 90%;
+      box-shadow: 0 18px 36px rgba(0,0,0,0.35);
+      position: relative;
+      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: -18px;
+      right: -18px;
+      background: #e57373;
+      color: white;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .ac-dialog h2 {
+      margin-top: 0;
+      color: var(--ac-wood-dark);
+      text-align: center;
+      font-size: 1.65rem;
+      border-bottom: 2px dashed #bcaaa4;
+      padding-bottom: 12px;
+    }
+
+    .input-group { margin-bottom: 14px; }
+    .input-group label { display: block; margin-bottom: 6px; color: #4e342e; font-weight: bold; }
+    .ac-input, .ac-select, .ac-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid #bcaaa4;
+      background: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .ac-btn {
+      background: var(--ac-green);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px #33691e;
+      width: 100%;
+    }
+    .ac-btn:active { transform: translateY(3px); box-shadow: 0 1px #33691e; }
+
+    .menu-title-pop {
+      font-size: 2.2rem;
+      color: #e65100;
+      margin: 15px 0;
+      animation: bounce 0.6s infinite alternate;
+    }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+
+    .ticker-wrapper {
+      width: 100%;
+      background: #212121;
+      color: #ffe082;
+      border-radius: 14px;
+      padding: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 10px #000;
+      border: 3px solid #ffb300;
+      font-size: 1.25rem;
+      margin-top: 15px;
+    }
+
+    .ticker-content {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 14s linear infinite;
+    }
+    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .cal-day-header { text-align: center; font-weight: bold; color: #8d5b4c; padding-bottom: 4px; }
+    .cal-day-cell {
+      height: 46px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f1f8e9;
+      border-radius: 12px;
+      cursor: not-allowed;
+      opacity: 0.4;
+      font-weight: bold;
+      position: relative;
+    }
+    .cal-day-cell.active-data {
+      opacity: 1;
+      cursor: pointer;
+      background: #fff59d;
+      border: 2px solid #fbc02d;
+    }
+    .cal-day-cell.selected { background: #81c784 !important; color: white; border-color: #2e7d32; }
+
+    .recipe-board {
+      margin-top: 15px;
+      background: #fff9c4;
+      border: 2px dashed #bcaaa4;
+      border-radius: 16px;
+      padding: 14px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .menu-item-tag {
+      display: inline-block;
+      background: white;
+      padding: 5px 12px;
+      border-radius: 14px;
+      margin: 4px;
+      font-size: 0.95rem;
+      color: #3e2723;
+      border: 1px solid #d7ccc8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <span>🍱 선택된 급식 날짜:</span>
+    <span class="header-date-badge" id="currentViewDateText">조회 중...</span>
+    <button class="open-cal-btn" onclick="openCalendarModal()">달력 열기 📅</button>
+  </div>
+
+  <div class="main-stage">
+    <img src="bg.png" alt="동물의 숲 배경" class="scene-bg" />
+
+    <div class="hotspot hotspot-box" onclick="handleBoxClick()" data-tooltip="📦 추억 사진 & 최고의 메뉴 등록"></div>
+    <div class="hotspot hotspot-tray" onclick="handleTrayClick()" data-tooltip="🍱 식판 사진 확대보기">
+      <img id="trayPreviewImg" class="tray-img-preview" alt="식판 사진" />
+    </div>
+    <div class="hotspot hotspot-gift" onclick="handleGiftClick()" data-tooltip="🎁 오늘의 최고 메뉴 열어보기"></div>
+    <div class="hotspot hotspot-calendar" onclick="openCalendarModal()" data-tooltip="🗓️ 추억 달력 & 식단표"></div>
+  </div>
+
+  <!-- 1. 업로드 모달 (바깥 클릭 꺼짐 방지) -->
+  <div id="uploadModal" class="modal-overlay">
+    <div class="ac-dialog">
+      <button class="modal-close-btn" onclick="closeModal('uploadModal')">×</button>
+      <h2>📦 관리자 추억 배달함</h2>
+      <div id="pwSection">
+        <div class="input-group">
+          <label>비밀번호를 입력해주세요:</label>
+          <input type="password" id="adminPwInput" class="ac-input" placeholder="비밀번호 4자리" maxlength="4" />
+        </div>
+        <button class="ac-btn" onclick="verifyPassword()">비밀번호 확인</button>
+      </div>
+
+      <div id="uploadFormSection" style="display:none;">
+        <div class="input-group">
+          <label>급식 날짜:</label>
+          <input type="date" id="recordDate" class="ac-input" onchange="fetchNeisMeal(this.value, 'uploadSelect')" />
+        </div>
+        <div class="input-group">
+          <label>식판 사진 업로드:</label>
+          <input type="file" id="mealPhotoFile" class="ac-input" accept="image/*" />
+        </div>
+        <div class="input-group">
+          <label>걸포초 오늘 최고의 메뉴:</label>
+          <select id="uploadSelect" class="ac-select"><option value="">날짜를 먼저 선택해주세요</option></select>
+        </div>
+        <div class="input-group">
+          <label>영양선생님께 남기는 한줄평:</label>
+          <textarea id="commentInput" class="ac-textarea" rows="2" placeholder="정말 맛있었어요 선생님! ❤️"></textarea>
+        </div>
+        <button class="ac-btn" id="saveSubmitBtn" onclick="saveRecord()">클라우드에 추억 등록 완료 ✨</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 식판 사진 확대 뷰어 모달 -->
+  <div id="trayViewerModal" class="modal-overlay">
+    <div class="ac-dialog" style="max-width: 680px; text-align: center;">
+      <button class="modal-close-btn" onclick="closeModal('trayViewerModal')">×</button>
+      <h2 id="trayModalTitle">🍱 오늘의 식판 원본</h2>
+      <div style="margin: 15px 0;">
+        <img id="trayFullImg" src="" alt="식판 사진" style="max-width: 100%; max-height: 480px; border-radius: 16px; border: 4px solid var(--ac-wood);" />
+      </div>
+      <p id="trayModalDesc" style="color:#5d4037; font-size:1.1rem;"></p>
+    </div>
+  </div>
+
+  <!-- 3. 선물상자 모달 -->
+  <div id="giftModal" class="modal-overlay">
+    <div class="ac-dialog">
+      <button class="modal-close-btn" onclick="closeModal('giftModal')">×</button>
+      <h2>🎁 오늘의 영예로운 최고 메뉴</h2>
+      <div style="text-align:center; padding:15px 0;">
+        <div style="font-size: 3rem;">🎉👑🎉</div>
+        <div class="menu-title-pop" id="giftBestMenuTitle">로딩 중...</div>
+        <div style="color: #6d4c41; margin-bottom: 15px; font-weight: bold;">영양선생님이 사랑으로 준비해주신 1위 급식!</div>
+        <div class="ticker-wrapper">
+          <div class="ticker-content" id="giftTickerComment">선생님 사랑합니다! ❤️</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 달력 모달 -->
+  <div id="calendarModal" class="modal-overlay">
+    <div class="ac-dialog" style="max-width: 620px;">
+      <button class="modal-close-btn" onclick="closeModal('calendarModal')">×</button>
+      <h2>🗓️ 추억 달력 & 걸포초 식단표</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <button onclick="changeCalMonth(-1)" class="ac-btn" style="width:auto; padding:6px 16px;">◀ 이전달</button>
+        <span id="calMonthTitle" style="font-size:1.25rem; font-weight:bold; color:var(--ac-wood-dark);">2026년 06월</span>
+        <button onclick="changeCalMonth(1)" class="ac-btn" style="width:auto; padding:6px 16px;">다음달 ▶</button>
+      </div>
+      <div class="calendar-grid" id="calGrid"></div>
+      <h3 style="margin-top:20px; margin-bottom:6px; color:var(--ac-wood-dark);">📋 걸포초등학교 급식 식단표</h3>
+      <div class="recipe-board" id="dailyMenuList">날짜를 클릭하면 그날의 식단표가 펼쳐집니다! 🍃</div>
+    </div>
+  </div>
+
+  <script>
+    const NEIS_KEY = "48b1ca2e2a1c41e6b4a891ab5556f0a6";
+    const ATPT_CODE = "J10";
+    const SCHOOL_NAME = "걸포초등학교";
+    let cachedSchoolCode = "7531107";
+
+    let memoryData = {};
+    let selectedDate = new Date().toISOString().split("T")[0];
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth() + 1;
+
+    // Firestore 실시간 리스너 연동
+    window.addEventListener("DOMContentLoaded", () => {
+      initSchoolCode();
+      db.collection("lunchMemories").onSnapshot((snapshot) => {
+        snapshot.forEach((doc) => {
+          memoryData[doc.id] = doc.data();
+        });
+
+        const dates = Object.keys(memoryData).sort();
+        if (dates.length > 0 && !memoryData[selectedDate]) {
+          selectedDate = dates[dates.length - 1];
+          const [y, m] = selectedDate.split("-");
+          calYear = parseInt(y);
+          calMonth = parseInt(m);
+        }
+        syncView(selectedDate);
+      });
+    });
+
+    async function initSchoolCode() {
+      try {
+        const url = `https://open.neis.go.kr/hub/schoolInfo?KEY=${NEIS_KEY}&Type=json&pIndex=1&pSize=5&ATPT_OFCDC_SC_CODE=${ATPT_CODE}&SCHUL_NM=${encodeURIComponent(SCHOOL_NAME)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data?.schoolInfo?.[1]?.row?.[0]?.SD_SCHUL_CODE) {
+          cachedSchoolCode = data.schoolInfo[1].row[0].SD_SCHUL_CODE;
+        }
+      } catch (e) {
+        console.log("기본 표준코드 유지:", cachedSchoolCode);
+      }
+    }
+
+    async function fetchNeisMeal(dateStr, targetSelectId = null) {
+      const cleanDate = dateStr.replace(/-/g, "");
+      const targetSelect = targetSelectId ? document.getElementById(targetSelectId) : null;
+      if (targetSelect) targetSelect.innerHTML = "<option>식단표 조회 중...</option>";
+
+      try {
+        const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${NEIS_KEY}&Type=json&pIndex=1&pSize=10&ATPT_OFCDC_SC_CODE=${ATPT_CODE}&SD_SCHUL_CODE=${cachedSchoolCode}&MLSV_YMD=${cleanDate}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        let menuItems = [];
+        if (data?.mealServiceDietInfo?.[1]?.row?.[0]?.DDISH_NM) {
+          menuItems = data.mealServiceDietInfo[1].row[0].DDISH_NM
+            .replace(/[0-9\.\*\(\)]/g, "")
+            .split("<br/>")
+            .map(m => m.trim())
+            .filter(m => m.length > 0);
+        } else {
+          menuItems = ["수제 치즈 닭갈비", "차돌된장찌개", "스파게티", "치킨텐더 샐러드", "신선 과일"];
+        }
+        if (targetSelect) targetSelect.innerHTML = menuItems.map(m => `<option value="${m}">${m}</option>`).join("");
+        return menuItems;
+      } catch (err) {
+        const fallback = ["맛있는 쌀밥", "달콤 소불고기", "영양 잡채", "미역국", "배추김치"];
+        if (targetSelect) targetSelect.innerHTML = fallback.map(m => `<option value="${m}">${m}</option>`).join("");
+        return fallback;
+      }
+    }
+
+    function handleBoxClick() {
+      document.getElementById("pwSection").style.display = "block";
+      document.getElementById("uploadFormSection").style.display = "none";
+      document.getElementById("adminPwInput").value = "";
+      openModal("uploadModal");
+    }
+
+    function verifyPassword() {
+      if (document.getElementById("adminPwInput").value.trim() === "0628") {
+        document.getElementById("pwSection").style.display = "none";
+        document.getElementById("uploadFormSection").style.display = "block";
+        document.getElementById("recordDate").value = selectedDate;
+        fetchNeisMeal(selectedDate, "uploadSelect");
+      } else {
+        alert("비밀번호가 올바르지 않습니다! (힌트: 0628)");
+      }
+    }
+
+    function compressImage(file, maxWidth = 800) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const scale = maxWidth / img.width;
+            canvas.width = (img.width > maxWidth) ? maxWidth : img.width;
+            canvas.height = (img.width > maxWidth) ? (img.height * scale) : img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL("image/jpeg", 0.75));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function saveRecord() {
+      const date = document.getElementById("recordDate").value;
+      const bestMenu = document.getElementById("uploadSelect").value;
+      const comment = document.getElementById("commentInput").value.trim() || "선생님 덕분에 오늘도 든든하게 먹었습니다! ❤️";
+      const photoFile = document.getElementById("mealPhotoFile").files[0];
+      const submitBtn = document.getElementById("saveSubmitBtn");
+
+      if (!date || !bestMenu) {
+        alert("날짜와 최고의 메뉴를 선택해주세요!");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = "클라우드 전송 중...";
+
+      let photoData = memoryData[date]?.photo || "";
+      if (photoFile) {
+        photoData = await compressImage(photoFile);
+      }
+
+      try {
+        await db.collection("lunchMemories").doc(date).set({
+          date: date,
+          bestMenu: bestMenu,
+          comment: comment,
+          photo: photoData,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("파이어베이스 클라우드에 성공적으로 등록되었습니다! 🍃");
+        closeModal("uploadModal");
+        syncView(date);
+      } catch (error) {
+        alert("등록 중 오류가 발생했습니다: " + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "클라우드에 추억 등록 완료 ✨";
+      }
+    }
+
+    function handleTrayClick() {
+      const current = memoryData[selectedDate];
+      const img = document.getElementById("trayFullImg");
+      document.getElementById("trayModalTitle").innerText = `🍱 [${selectedDate}] 식판 사진`;
+      if (current && current.photo) {
+        img.src = current.photo;
+        document.getElementById("trayModalDesc").innerText = `최고의 메뉴: ${current.bestMenu}`;
+      } else {
+        img.src = "bg.png";
+        document.getElementById("trayModalDesc").innerText = "등록된 식판 사진이 없습니다. 박스를 눌러 사진을 올려보세요!";
+      }
+      openModal("trayViewerModal");
+    }
+
+    /* 3. 선물상자 한줄평 전광판 - 수식어 없이 순수 한줄평만 표시 */
+    function handleGiftClick() {
+      const current = memoryData[selectedDate] || {
+        bestMenu: "사랑이 담긴 특식",
+        comment: "선생님 덕분에 언제나 행복한 학교생활이었습니다! ❤️"
+      };
+      document.getElementById("giftBestMenuTitle").innerText = current.bestMenu;
+      document.getElementById("giftTickerComment").innerText = current.comment;
+      openModal("giftModal");
+
+      confetti({ particleCount: 110, spread: 80, origin: { y: 0.6 } });
+    }
+
+    function openCalendarModal() {
+      renderCalendar();
+      updateRecipeBoard(selectedDate);
+      openModal("calendarModal");
+    }
+
+    function changeCalMonth(delta) {
+      calMonth += delta;
+      if (calMonth < 1) { calMonth = 12; calYear--; }
+      else if (calMonth > 12) { calMonth = 1; calYear++; }
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      document.getElementById("calMonthTitle").innerText = `${calYear}년 ${String(calMonth).padStart(2, "0")}월`;
+      const grid = document.getElementById("calGrid");
+      grid.innerHTML = "";
+
+      ["일", "월", "화", "수", "목", "금", "토"].forEach(name => {
+        const h = document.createElement("div");
+        h.className = "cal-day-header";
+        h.innerText = name;
+        grid.appendChild(h);
+      });
+
+      const firstDay = new Date(calYear, calMonth - 1, 1).getDay();
+      const totalDays = new Date(calYear, calMonth, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement("div"));
+
+      for (let d = 1; d <= totalDays; d++) {
+        const cell = document.createElement("div");
+        cell.className = "cal-day-cell";
+        cell.innerText = d;
+        const dateStr = `${calYear}-${String(calMonth).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+        if (memoryData[dateStr]) {
+          cell.classList.add("active-data");
+          const dot = document.createElement("span");
+          dot.innerText = "🍃";
+          dot.style.fontSize = "0.75rem";
+          cell.appendChild(dot);
+        }
+
+        if (dateStr === selectedDate) cell.classList.add("selected");
+
+        cell.onclick = () => {
+          syncView(dateStr);
+          updateRecipeBoard(dateStr);
+          renderCalendar();
+        };
+        grid.appendChild(cell);
+      }
+    }
+
+    async function updateRecipeBoard(dateStr) {
+      const board = document.getElementById("dailyMenuList");
+      board.innerHTML = "걸포초 식단표 조회 중... 🍃";
+      const dishes = await fetchNeisMeal(dateStr);
+      board.innerHTML = `
+        <div style="font-weight:bold; margin-bottom:8px; color:#5c3a21;">🍱 [${dateStr}] 걸포초 오늘의 식단:</div>
+        <div>${dishes.map(d => `<span class="menu-item-tag">🌿 ${d}</span>`).join("")}</div>
+      `;
+    }
+
+    function syncView(dateStr) {
+      selectedDate = dateStr;
+      document.getElementById("currentViewDateText").innerText = dateStr;
+      const record = memoryData[dateStr];
+      const trayPreview = document.getElementById("trayPreviewImg");
+      if (record && record.photo) {
+        trayPreview.src = record.photo;
+        trayPreview.style.display = "block";
+      } else {
+        trayPreview.style.display = "none";
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = "flex"; }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+
+    /* 1. 업로드 모달(uploadModal)은 배경 클릭 닫기 방지 (다른 단순 조회 모달만 배경 클릭 허용) */
+    window.onclick = (e) => {
+      if (e.target.classList.contains("modal-overlay")) {
+        if (e.target.id !== "uploadModal") {
+          e.target.style.display = "none";
+        }
+      }
+    };
+  </script>
+</body>
+</html>
