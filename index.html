@@ -283,7 +283,7 @@
     }
     @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-7px); } }
 
-    /* 2. 전광판 속도 개선: 14s -> 6s */
+    /* 전광판 속도 (6초 완주) */
     .ticker-wrapper {
       width: 100%;
       background: #212121;
@@ -320,19 +320,20 @@
       justify-content: center;
       background: #f1f8e9;
       border-radius: 10px;
-      cursor: not-allowed;
-      opacity: 0.4;
+      cursor: pointer;
+      opacity: 0.7;
       font-weight: bold;
       font-size: 0.9rem;
       position: relative;
+      transition: transform 0.1s;
     }
+    .cal-day-cell:active { transform: scale(0.95); }
     .cal-day-cell.active-data {
       opacity: 1;
-      cursor: pointer;
       background: #fff59d;
       border: 2px solid #fbc02d;
     }
-    .cal-day-cell.selected { background: #81c784 !important; color: white; border-color: #2e7d32; }
+    .cal-day-cell.selected { background: #81c784 !important; color: white; border-color: #2e7d32; opacity: 1; }
 
     .recipe-board {
       margin-top: 14px;
@@ -355,7 +356,7 @@
       border: 1px solid #d7ccc8;
     }
 
-    /* 1. 모바일 전용 반응형 레이아웃 스타일 */
+    /* 모바일 전용 반응형 스타일 */
     @media (max-width: 768px) {
       .header-bar {
         top: 8px;
@@ -380,7 +381,7 @@
         border-radius: 16px;
       }
       .hotspot::after {
-        display: none; /* 모바일 터치 환경에서 툴팁 잘림 방지 */
+        display: none;
       }
       .ac-dialog {
         padding: 18px 16px;
@@ -441,7 +442,7 @@
     <div class="hotspot hotspot-calendar" onclick="openCalendarModal()" data-tooltip="🗓️ 추억 달력 & 식단표"></div>
   </div>
 
-  <!-- 1. 업로드 모달 (바깥 클릭 방지 처리) -->
+  <!-- 1. 업로드 모달 -->
   <div id="uploadModal" class="modal-overlay">
     <div class="ac-dialog" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeModal('uploadModal')">×</button>
@@ -739,10 +740,12 @@
 
         if (dateStr === selectedDate) cell.classList.add("selected");
 
+        // 날짜 클릭 시 즉시 뷰 갱신 후 달력 팝업 닫기
         cell.onclick = () => {
           syncView(dateStr);
           updateRecipeBoard(dateStr);
           renderCalendar();
+          closeModal("calendarModal");
         };
         grid.appendChild(cell);
       }
