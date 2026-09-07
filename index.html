@@ -505,7 +505,7 @@
     </div>
   </div>
 
-  <!-- 4. 달력 모달 -->
+  <!-- 4. 달력 모달 (확인 버튼 추가) -->
   <div id="calendarModal" class="modal-overlay" onclick="closeModal('calendarModal')">
     <div class="ac-dialog" style="max-width: 600px;" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeModal('calendarModal')">×</button>
@@ -518,6 +518,7 @@
       <div class="calendar-grid" id="calGrid"></div>
       <h3 style="margin-top:16px; margin-bottom:6px; color:var(--ac-wood-dark); font-size:1.1rem;">📋 걸포초등학교 급식 식단표</h3>
       <div class="recipe-board" id="dailyMenuList">날짜를 클릭하면 그날의 식단표가 펼쳐집니다! 🍃</div>
+      <button class="ac-btn" style="margin-top:14px;" onclick="closeModal('calendarModal')">이 날짜로 확인 및 닫기 ✨</button>
     </div>
   </div>
 
@@ -740,12 +741,11 @@
 
         if (dateStr === selectedDate) cell.classList.add("selected");
 
-        // 날짜 클릭 시 즉시 뷰 갱신 후 달력 팝업 닫기
+        // 날짜 클릭 시 식단표와 배경을 갱신하고 창은 닫지 않음
         cell.onclick = () => {
           syncView(dateStr);
           updateRecipeBoard(dateStr);
           renderCalendar();
-          closeModal("calendarModal");
         };
         grid.appendChild(cell);
       }
